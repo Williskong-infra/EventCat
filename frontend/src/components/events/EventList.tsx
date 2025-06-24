@@ -20,6 +20,8 @@ const EventList = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
+        const token = localStorage.getItem('token');
+        console.log('JWT token before request:', token);
         const res = await axios.get('/api/events');
         setEvents(res.data);
       } catch (err) {
@@ -54,6 +56,9 @@ const EventList = () => {
               >
                 <p>{new Date(event.date).toLocaleDateString()}</p>
                 <p>{event.location}</p>
+                <Button type="primary" block style={{ marginTop: 12 }}>
+                  <Link to={`/events/${event.id}`}>Detail</Link>
+                </Button>
               </Card>
             </Col>
           ))}

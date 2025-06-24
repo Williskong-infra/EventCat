@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Form, Input, Button, DatePicker, InputNumber, Upload, message } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 
 const EventForm = () => {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    date: '',
-    location: '',
-    categoryId: '',
-  });
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -26,86 +25,105 @@ const EventForm = () => {
     fetchCategories();
 
     if (id) {
-      const fetchEvent = async () => {
-        try {
-          const res = await axios.get(`/api/events/${id}`);
-          const { title, description, date, location, categoryId } = res.data;
-          setFormData({ title, description, date: new Date(date).toISOString().slice(0, 16), location, categoryId });
-        } catch (err) {
-          console.error(err);
-        }
-      };
-      fetchEvent();
+      axios.get(`/api/events/${id}`).then(res => {
+        const { title, date, location, imageUrl, price } = res.data;
+        form.setFieldsValue({
+          title,
+          date: dayjs(date),
+          location,
+          imageUrl,
+          price,
+        });
+        setImageUrl(imageUrl);
+      });
     }
-  }, [id]);
+  }, [id, form]);
 
-  const { title, description, date, location, categoryId } = formData;
-
-  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleUpload = ({ file }: { file: File }) => {
+    const previewUrl = URL.createObjectURL(file);
+    setImageUrl(previewUrl);
+    setImageFile(file);
+    form.setFieldsValue({ imageUrl: previewUrl });
+    message.success('Image selected!');
   };
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      };
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
 
-      if (id) {
-        // Update event
-        await axios.put(`/api/events/${id}`, formData, config);
-        navigate(`/events/${id}`);
-      } else {
-        // Create event
-        const res = await axios.post('/api/events', formData, config);
-        navigate(`/events/${res.data.id}`);
-      }
-    } catch (err) {
-      console.error(err);
+  const onFinish = async (values: any) => {
+    const token = localStorage.getItem('token');
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const payload = {
+      ...values,
+      date: values.date ? values.date.toISOString() : undefined,
+      imageUrl, // This is a preview URL, not a real file path
+    };
+    if (id) {
+      await axios.put(`/api/events/${id}`, payload, config);
+      message.success('Event updated!');
+      navigate(`/events/${id}`);
+    } else {
+      const res = await axios.post('/api/events', payload, config);
+      message.success('Event created!');
+      navigate(`/events/${res.data.id}`);
     }
   };
 
   return (
-    <div>
-      <h2>{id ? 'Edit Event' : 'Create Event'}</h2>
-      <form onSubmit={onSubmit}>
-        <div>
-          <label>Title</label>
-          <input type="text" name="title" value={title} onChange={onChange} required />
-        </div>
-        <div>
-          <label>Description</label>
-          <textarea name="description" value={description} onChange={onChange}></textarea>
-        </div>
-        <div>
-          <label>Date and Time</label>
-          <input type="datetime-local" name="date" value={date} onChange={onChange} required />
-        </div>
-        <div>
-          <label>Location</label>
-          <input type="text" name="location" value={location} onChange={onChange} required />
-        </div>
-        <div>
-          <label>Category</label>
-          <select name="categoryId" value={categoryId} onChange={onChange} required>
-            <option value="" disabled>
-              Select a category
+    <Form form={form} layout="vertical" onFinish={onFinish} style={{ maxWidth: 500, margin: '0 auto' }}>
+      <Form.Item label="Event Image" name="imageUrl">
+        <Upload
+          name="image"
+          listType="picture-card"
+          showUploadList={false}
+          customRequest={handleUpload}
+          accept="image/*"
+        >
+          {imageUrl ? (
+            <img src={imageUrl} alt="event" style={{ width: '100%' }} />
+          ) : (
+            uploadButton
+          )}
+        </Upload>
+      </Form.Item>
+      <Form.Item label="Title" name="title" rules={[{ required: true, message: 'Please enter a title' }]}> 
+        <Input placeholder="Event title" />
+      </Form.Item>
+      <Form.Item label="Description" name="description"> 
+        <Input.TextArea placeholder="Event description" />
+      </Form.Item>
+      <Form.Item label="Date and Time" name="date" rules={[{ required: true, message: 'Please select date and time' }]}> 
+        <DatePicker showTime format="YYYY-MM-DD HH:mm" style={{ width: '100%' }} />
+      </Form.Item>
+      <Form.Item label="Location" name="location" rules={[{ required: true, message: 'Please enter a location' }]}> 
+        <Input placeholder="Location" />
+      </Form.Item>
+      <Form.Item label="Price (HK$)" name="price"> 
+        <InputNumber min={0} style={{ width: '100%' }} placeholder="e.g. 150" />
+      </Form.Item>
+      <Form.Item label="Category" name="categoryId" rules={[{ required: true, message: 'Please select a category' }]}>
+        <select>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
             </option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit">{id ? 'Update Event' : 'Create Event'}</button>
-      </form>
-    </div>
+          ))}
+        </select>
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          {id ? 'Update Event' : 'Create Event'}
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 
