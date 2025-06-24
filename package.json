@@ -8,5 +8,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "antd": "^5.26.1",
+    "multer": "^2.0.1"
+  }
 }
