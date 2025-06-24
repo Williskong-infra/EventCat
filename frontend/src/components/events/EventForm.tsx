@@ -6,6 +6,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import path from 'path';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const getImageUrl = (url?: string) => url ? (url.startsWith('http') ? url : `${API_BASE_URL}${url}`) : undefined;
+
 const EventForm = () => {
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
@@ -97,7 +100,7 @@ const EventForm = () => {
           accept="image/*"
         >
           {imageUrl ? (
-            <img src={imageUrl} alt="event" style={{ width: '100%' }} />
+            <img src={getImageUrl(imageUrl)} alt="event" style={{ width: '100%' }} />
           ) : (
             uploadButton
           )}
