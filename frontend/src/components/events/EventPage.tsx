@@ -15,7 +15,11 @@ interface Event {
   category: {
     name: string;
   };
+  imageUrl?: string;
 }
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const getImageUrl = (url?: string) => url ? (url.startsWith('http') ? url : `${API_BASE_URL}${url}`) : undefined;
 
 const EventPage = () => {
   const [event, setEvent] = useState<Event | null>(null);
@@ -58,6 +62,13 @@ const EventPage = () => {
 
   return (
     <div>
+      {event.imageUrl && (
+        <img
+          src={getImageUrl(event.imageUrl)}
+          alt={event.title}
+          style={{ width: '100%', maxWidth: 400, borderRadius: 12, marginBottom: 24 }}
+        />
+      )}
       <h2>{event.title}</h2>
       {user && user.id === event.organizer.id && (
         <div>

@@ -9,9 +9,12 @@ interface Event {
   title: string;
   date: string;
   location: string;
+  imageUrl?: string;
 }
 
 const CARDS_PER_PAGE = 4;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const getImageUrl = (url?: string) => url ? (url.startsWith('http') ? url : `${API_BASE_URL}${url}`) : undefined;
 
 const EventList = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -53,6 +56,13 @@ const EventList = () => {
                 style={{ borderRadius: 12, minHeight: 260 }}
                 bodyStyle={{ padding: 18 }}
                 title={<Link to={`/events/${event.id}`}>{event.title}</Link>}
+                cover={event.imageUrl ? (
+                  <img
+                    src={getImageUrl(event.imageUrl)}
+                    alt={event.title}
+                    style={{ height: 140, width: '100%', objectFit: 'cover', borderRadius: '12px 12px 0 0' }}
+                  />
+                ) : undefined}
               >
                 <p>{new Date(event.date).toLocaleDateString()}</p>
                 <p>{event.location}</p>

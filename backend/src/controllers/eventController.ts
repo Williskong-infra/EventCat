@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 // @route   POST /api/events
 // @access  Private
 export const createEvent = async (req: Request, res: Response) => {
-  const { title, description, date, location, categoryId } = req.body;
+  const { title, description, date, location, categoryId, imageUrl } = req.body;
   const organizerId = req.userId;
 
   if (!title || !date || !location || !categoryId) {
@@ -28,6 +28,7 @@ export const createEvent = async (req: Request, res: Response) => {
       location,
       organizerId,
       categoryId,
+      imageUrl,
     },
   });
 
@@ -78,7 +79,7 @@ export const getEventById = async (req: Request, res: Response) => {
 // @access  Private
 export const updateEvent = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, description, date, location, categoryId } = req.body;
+  const { title, description, date, location, categoryId, imageUrl } = req.body;
   const organizerId = req.userId;
 
   const event = await prisma.event.findUnique({ where: { id } });
@@ -95,7 +96,7 @@ export const updateEvent = async (req: Request, res: Response) => {
 
   const updatedEvent = await prisma.event.update({
     where: { id },
-    data: { title, description, date: date ? new Date(date) : undefined, location, categoryId },
+    data: { title, description, date: date ? new Date(date) : undefined, location, categoryId, imageUrl },
   });
 
   res.json(updatedEvent);

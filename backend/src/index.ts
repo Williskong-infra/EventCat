@@ -3,6 +3,8 @@ import { PrismaClient } from '../generated/prisma';
 import authRoutes from './routes/auth';
 import eventRoutes from './routes/event';
 import categoryRoutes from './routes/category';
+import uploadRoutes from './routes/upload';
+import path from 'path';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -13,6 +15,15 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/categories', categoryRoutes);
+console.log('DEBUG: __dirname =', __dirname);
+const mediaPath = path.join(__dirname, '../media');
+console.log('DEBUG: Serving media from:', mediaPath);
+app.use('/media', (req, res, next) => {
+  const filePath = path.join(mediaPath, req.url);
+  console.log('DEBUG: Looking for file:', filePath);
+  next();
+}, express.static(mediaPath));
+app.use('/api/upload', uploadRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.send('Server is running');

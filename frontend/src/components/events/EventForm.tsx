@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Input, Button, DatePicker, InputNumber, Upload, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import path from 'path';
 
 const EventForm = () => {
   const [form] = Form.useForm();
@@ -39,12 +40,20 @@ const EventForm = () => {
     }
   }, [id, form]);
 
-  const handleUpload = ({ file }: { file: File }) => {
-    const previewUrl = URL.createObjectURL(file);
-    setImageUrl(previewUrl);
-    setImageFile(file);
-    form.setFieldsValue({ imageUrl: previewUrl });
-    message.success('Image selected!');
+  const handleUpload = async ({ file }: { file: File }) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const res = await axios.post('/api/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setImageUrl(res.data.imageUrl);
+      setImageFile(file);
+      form.setFieldsValue({ imageUrl: res.data.imageUrl });
+      message.success('Image uploaded!');
+    } catch (err) {
+      message.error('Image upload failed');
+    }
   };
 
   const uploadButton = (
@@ -64,7 +73,7 @@ const EventForm = () => {
     const payload = {
       ...values,
       date: values.date ? values.date.toISOString() : undefined,
-      imageUrl, // This is a preview URL, not a real file path
+      imageUrl,
     };
     if (id) {
       await axios.put(`/api/events/${id}`, payload, config);
