@@ -1,0 +1,32 @@
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import Home from './components/Home';
+import Navbar from './components/Navbar';
+import EventPage from './components/events/EventPage';
+import EventForm from './components/events/EventForm';
+import ProtectedRoute from './components/routing/ProtectedRoute';
+import './App.css';
+
+function App() {
+  return (
+    <Router>
+      <div>
+        <Navbar />
+        <hr />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/events/:id" element={<EventPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/create-event" element={<EventForm />} />
+            <Route path="/events/:id/edit" element={<EventForm />} />
+          </Route>
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
