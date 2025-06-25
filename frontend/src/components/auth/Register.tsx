@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -19,10 +20,12 @@ const Register = () => {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/api/auth/register', formData);
-      console.log(res.data);
-      navigate('/login');
-    } catch (err) {
+      await axios.post('/api/auth/register', formData);
+      message.success('Registration successful! Please check your email for the verification code.');
+      setTimeout(() => {
+        navigate('/verify-email', { state: { email: email } });
+      }, 1000);
+    } catch (err: any) {
       console.error(err);
     }
   };

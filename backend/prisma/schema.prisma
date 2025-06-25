@@ -19,6 +19,9 @@ model User {
   email         String    @unique
   name          String?
   password      String
+  emailVerified Boolean   @default(false)
+  verifyCode    String?
+  verifyCodeExpires DateTime?
   events        Event[]   @relation("OrganizedBy")
   registrations Registration[]
   createdAt     DateTime  @default(now())
