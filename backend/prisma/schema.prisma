@@ -29,8 +29,10 @@ model Event {
   id            String    @id @default(cuid())
   title         String
   description   String?   @db.Text
-  date          DateTime
+  startDate     DateTime?
+  endDate       DateTime?
   location      String
+  price         Float?
   organizerId   String
   organizer     User      @relation("OrganizedBy", fields: [organizerId], references: [id])
   categoryId    String

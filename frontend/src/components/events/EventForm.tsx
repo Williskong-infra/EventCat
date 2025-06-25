@@ -8,6 +8,8 @@ import dayjs from 'dayjs';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 const getImageUrl = (url?: string) => url ? (url.startsWith('http') ? url : `${API_BASE_URL}${url}`) : undefined;
 
+const { RangePicker } = DatePicker;
+
 const EventForm = () => {
   const [form] = Form.useForm();
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -32,10 +34,10 @@ const EventForm = () => {
 
     if (id) {
       axios.get(`/api/events/${id}`).then(res => {
-        const { title, date, location, images = [], price, categoryId } = res.data;
+        const { title, startDate, endDate, location, images = [], price, categoryId } = res.data;
         form.setFieldsValue({
           title,
-          date: dayjs(date),
+          dateRange: [startDate ? dayjs(startDate) : null, endDate ? dayjs(endDate) : null],
           location,
           price,
           categoryId,
@@ -96,11 +98,14 @@ const EventForm = () => {
         Authorization: `Bearer ${token}`,
       },
     };
+    const [start, end] = values.dateRange || [];
     const payload = {
       ...values,
-      date: values.date ? values.date.toISOString() : undefined,
+      startDate: start ? start.toISOString() : undefined,
+      endDate: end ? end.toISOString() : undefined,
       images: imageUrls,
     };
+    delete payload.dateRange;
     if (id) {
       await axios.put(`/api/events/${id}`, payload, config);
       message.success('Event updated!');
@@ -134,8 +139,8 @@ const EventForm = () => {
       <Form.Item label="Description" name="description"> 
         <Input.TextArea placeholder="Event description" />
       </Form.Item>
-      <Form.Item label="Date and Time" name="date" rules={[{ required: true, message: 'Please select date and time' }]}> 
-        <DatePicker showTime format="YYYY-MM-DD HH:mm" style={{ width: '100%' }} />
+      <Form.Item label="Event Period" name="dateRange" rules={[{ required: true, message: 'Please select event period' }]}> 
+        <RangePicker showTime format="YYYY-MM-DD HH:mm" style={{ width: '100%' }} />
       </Form.Item>
       <Form.Item label="Location" name="location" rules={[{ required: true, message: 'Please enter a location' }]}> 
         <Input placeholder="Location" />

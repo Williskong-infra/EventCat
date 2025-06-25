@@ -8,7 +8,8 @@ interface Event {
   id: string;
   title: string;
   description: string;
-  date: string;
+  startDate?: string;
+  endDate?: string;
   location: string;
   price?: number;
   organizer: {
@@ -99,29 +100,37 @@ const EventPage = () => {
           )}
         </div>
       </div>
-      {/* Price and Add to Cart - centered below gallery */}
-      <div style={{ width: 340, margin: '0 auto 32px auto', borderRadius: 12, textAlign: 'center', background: '#fafafa', boxShadow: '0 2px 8px #f0f1f2', padding: 24 }}>
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          {event.price !== undefined ? `HK$ ${event.price}` : 'Free'}
-        </Typography.Title>
-        <Button type="primary" size="large" style={{ marginTop: 16, width: '100%' }}>
-          Add to cart
-        </Button>
+      {/* Details and Price in two columns */}
+      <div style={{ display: 'flex', gap: 32, marginTop: 16, flexWrap: 'wrap' }}>
+        {/* Left: Details */}
+        <div style={{ flex: 2, minWidth: 260, textAlign: 'left' }}>
+          <Typography.Paragraph>
+            <strong>Organized by:</strong> {event.organizer.name}
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            <strong>Category:</strong> {event.category.name}
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            <strong>Period:</strong> {event.startDate && event.endDate ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}` : 'N/A'}
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            <strong>Location:</strong> {event.location}
+          </Typography.Paragraph>
+        </div>
+        {/* Right: Price and Add to Cart */}
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <div style={{ borderRadius: 12, textAlign: 'center', background: '#fafafa', boxShadow: '0 2px 8px #f0f1f2', padding: 24 }}>
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              {event.price !== undefined ? `HK$ ${event.price}` : 'Free'}
+            </Typography.Title>
+            <Button type="primary" size="large" style={{ marginTop: 16, width: '100%' }}>
+              Add to cart
+            </Button>
+          </div>
+        </div>
       </div>
-      {/* Event details */}
+      {/* Description below */}
       <div style={{ marginTop: 16 }}>
-        <Typography.Paragraph>
-          <strong>Organized by:</strong> {event.organizer.name}
-        </Typography.Paragraph>
-        <Typography.Paragraph>
-          <strong>Category:</strong> {event.category.name}
-        </Typography.Paragraph>
-        <Typography.Paragraph>
-          <strong>Date:</strong> {new Date(event.date).toLocaleString()}
-        </Typography.Paragraph>
-        <Typography.Paragraph>
-          <strong>Location:</strong> {event.location}
-        </Typography.Paragraph>
         <Typography.Paragraph>{event.description}</Typography.Paragraph>
       </div>
       {/* Organizer controls at end of page */}

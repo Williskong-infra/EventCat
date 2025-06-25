@@ -7,10 +7,10 @@ const prisma = new PrismaClient();
 // @route   POST /api/events
 // @access  Private
 export const createEvent = async (req: Request, res: Response) => {
-  const { title, description, date, location, categoryId, images } = req.body;
+  const { title, description, startDate, endDate, location, categoryId, images, price } = req.body;
   const organizerId = req.userId;
 
-  if (!title || !date || !location || !categoryId) {
+  if (!title || !startDate || !endDate || !location || !categoryId) {
     res.status(400).json({ message: 'Please provide all required fields' });
     return;
   }
@@ -24,10 +24,12 @@ export const createEvent = async (req: Request, res: Response) => {
     data: {
       title,
       description,
-      date: new Date(date),
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       location,
       organizerId,
       categoryId,
+      price: price !== undefined ? Number(price) : null,
       images: images && Array.isArray(images)
         ? { create: images.map((url: string) => ({ url })) }
         : undefined,
@@ -84,7 +86,7 @@ export const getEventById = async (req: Request, res: Response) => {
 // @access  Private
 export const updateEvent = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, description, date, location, categoryId, images } = req.body;
+  const { title, description, startDate, endDate, location, categoryId, images, price } = req.body;
   const organizerId = req.userId;
 
   const event = await prisma.event.findUnique({ where: { id } });
@@ -109,9 +111,11 @@ export const updateEvent = async (req: Request, res: Response) => {
       data: {
         title,
         description,
-        date: date ? new Date(date) : undefined,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
         location,
         categoryId,
+        price: price !== undefined ? Number(price) : null,
         images: { create: images.map((url: string) => ({ url })) },
       },
       include: { images: true },
@@ -119,7 +123,15 @@ export const updateEvent = async (req: Request, res: Response) => {
   } else {
     updatedEvent = await prisma.event.update({
       where: { id },
-      data: { title, description, date: date ? new Date(date) : undefined, location, categoryId },
+      data: {
+        title,
+        description,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
+        location,
+        categoryId,
+        price: price !== undefined ? Number(price) : null,
+      },
       include: { images: true },
     });
   }
