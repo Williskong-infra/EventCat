@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 // @route   POST /api/events
 // @access  Private
 export const createEvent = async (req: Request, res: Response) => {
-  const { title, description, date, location, categoryId, imageUrl } = req.body;
+  const { title, description, date, location, categoryId, images } = req.body;
   const organizerId = req.userId;
 
   if (!title || !date || !location || !categoryId) {
@@ -28,8 +28,11 @@ export const createEvent = async (req: Request, res: Response) => {
       location,
       organizerId,
       categoryId,
-      imageUrl,
+      images: images && Array.isArray(images)
+        ? { create: images.map((url: string) => ({ url })) }
+        : undefined,
     },
+    include: { images: true },
   });
 
   if (!event) {
@@ -48,6 +51,7 @@ export const getEvents = async (req: Request, res: Response) => {
     include: {
       organizer: { select: { id: true, name: true } },
       category: true,
+      images: true,
     },
   });
   res.json(events);
@@ -64,6 +68,7 @@ export const getEventById = async (req: Request, res: Response) => {
       organizer: { select: { id: true, name: true } },
       category: true,
       tickets: true,
+      images: true,
     },
   });
 
@@ -79,7 +84,7 @@ export const getEventById = async (req: Request, res: Response) => {
 // @access  Private
 export const updateEvent = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, description, date, location, categoryId, imageUrl } = req.body;
+  const { title, description, date, location, categoryId, images } = req.body;
   const organizerId = req.userId;
 
   const event = await prisma.event.findUnique({ where: { id } });
@@ -94,10 +99,30 @@ export const updateEvent = async (req: Request, res: Response) => {
     return;
   }
 
-  const updatedEvent = await prisma.event.update({
-    where: { id },
-    data: { title, description, date: date ? new Date(date) : undefined, location, categoryId, imageUrl },
-  });
+  // If images are provided, replace all images for the event
+  let updatedEvent;
+  if (images && Array.isArray(images)) {
+    // Delete old images
+    await prisma.image.deleteMany({ where: { eventId: id } });
+    updatedEvent = await prisma.event.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        date: date ? new Date(date) : undefined,
+        location,
+        categoryId,
+        images: { create: images.map((url: string) => ({ url })) },
+      },
+      include: { images: true },
+    });
+  } else {
+    updatedEvent = await prisma.event.update({
+      where: { id },
+      data: { title, description, date: date ? new Date(date) : undefined, location, categoryId },
+      include: { images: true },
+    });
+  }
 
   res.json(updatedEvent);
 };
@@ -121,6 +146,8 @@ export const deleteEvent = async (req: Request, res: Response) => {
     return;
   }
 
+  // Delete related images first
+  await prisma.image.deleteMany({ where: { eventId: id } });
   await prisma.event.delete({ where: { id } });
 
   res.json({ message: 'Event removed' });

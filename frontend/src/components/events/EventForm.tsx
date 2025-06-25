@@ -4,15 +4,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Input, Button, DatePicker, InputNumber, Upload, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import path from 'path';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 const getImageUrl = (url?: string) => url ? (url.startsWith('http') ? url : `${API_BASE_URL}${url}`) : undefined;
 
 const EventForm = () => {
   const [form] = Form.useForm();
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
-  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [fileList, setFileList] = useState<any[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -22,6 +21,9 @@ const EventForm = () => {
       try {
         const res = await axios.get('/api/categories');
         setCategories(res.data);
+        if (!id && res.data.length > 0) {
+          form.setFieldsValue({ categoryId: res.data[0].id });
+        }
       } catch (err) {
         console.error(err);
       }
@@ -30,32 +32,45 @@ const EventForm = () => {
 
     if (id) {
       axios.get(`/api/events/${id}`).then(res => {
-        const { title, date, location, imageUrl, price } = res.data;
+        const { title, date, location, images = [], price, categoryId } = res.data;
         form.setFieldsValue({
           title,
           date: dayjs(date),
           location,
-          imageUrl,
           price,
+          categoryId,
         });
-        setImageUrl(imageUrl);
+        const urls = images.map((img: any) => img.url);
+        setImageUrls(urls);
+        setFileList(urls.map((url: string, idx: number) => ({
+          uid: String(-idx - 1),
+          name: `image${idx + 1}.png`,
+          status: 'done',
+          url: getImageUrl(url),
+        })));
       });
     }
   }, [id, form]);
 
-  const handleUpload = async ({ file }: { file: File }) => {
+  const handleUpload = async ({ file, onSuccess, onError }: any) => {
     const formData = new FormData();
     formData.append('image', file);
     try {
       const res = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setImageUrl(res.data.imageUrl);
-      setImageFile(file);
-      form.setFieldsValue({ imageUrl: res.data.imageUrl });
+      setImageUrls(prev => [...prev, res.data.imageUrl]);
+      setFileList(prev => [...prev, {
+        uid: file.uid,
+        name: file.name,
+        status: 'done',
+        url: getImageUrl(res.data.imageUrl),
+      }]);
       message.success('Image uploaded!');
+      onSuccess && onSuccess(res.data, file);
     } catch (err) {
       message.error('Image upload failed');
+      onError && onError(err);
     }
   };
 
@@ -65,6 +80,14 @@ const EventForm = () => {
       <div style={{ marginTop: 8 }}>Upload</div>
     </div>
   );
+
+  const onRemove = (file: any) => {
+    const idx = fileList.findIndex(f => f.uid === file.uid);
+    if (idx > -1) {
+      setFileList(prev => prev.filter((_, i) => i !== idx));
+      setImageUrls(prev => prev.filter((_, i) => i !== idx));
+    }
+  };
 
   const onFinish = async (values: any) => {
     const token = localStorage.getItem('token');
@@ -76,7 +99,7 @@ const EventForm = () => {
     const payload = {
       ...values,
       date: values.date ? values.date.toISOString() : undefined,
-      imageUrl,
+      images: imageUrls,
     };
     if (id) {
       await axios.put(`/api/events/${id}`, payload, config);
@@ -91,19 +114,18 @@ const EventForm = () => {
 
   return (
     <Form form={form} layout="vertical" onFinish={onFinish} style={{ maxWidth: 500, margin: '0 auto' }}>
-      <Form.Item label="Event Image" name="imageUrl">
+      <Form.Item label="Event Images">
         <Upload
           name="image"
           listType="picture-card"
-          showUploadList={false}
           customRequest={handleUpload}
           accept="image/*"
+          multiple
+          fileList={fileList}
+          onRemove={onRemove}
+          showUploadList={{ showRemoveIcon: true }}
         >
-          {imageUrl ? (
-            <img src={getImageUrl(imageUrl)} alt="event" style={{ width: '100%' }} />
-          ) : (
-            uploadButton
-          )}
+          {fileList.length >= 8 ? null : uploadButton}
         </Upload>
       </Form.Item>
       <Form.Item label="Title" name="title" rules={[{ required: true, message: 'Please enter a title' }]}> 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Card, Typography, Button, Space, Modal, message } from 'antd';
+import Card from 'antd/es/card';
+import { Typography, Button, Space, Modal, message } from 'antd';
 
 interface Event {
   id: string;
@@ -9,6 +10,7 @@ interface Event {
   description: string;
   date: string;
   location: string;
+  price?: number;
   organizer: {
     id: string;
     name: string;
@@ -16,7 +18,7 @@ interface Event {
   category: {
     name: string;
   };
-  imageUrl?: string;
+  images?: { url: string }[];
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
@@ -72,44 +74,70 @@ const EventPage = () => {
     return <div>Loading...</div>;
   }
 
+  // Prepare images for gallery
+  const images = event.images && event.images.length > 0 ? event.images.map(img => getImageUrl(img.url)) : [];
+  const mainImg = images[0];
+  const sideImg1 = images[1] || images[0];
+  const sideImg2 = images[2] || images[1] || images[0];
+
   return (
-    <Card
-      style={{ maxWidth: 600, margin: '32px auto', borderRadius: 12 }}
-      cover={
-        event.imageUrl && (
-          <img
-            src={getImageUrl(event.imageUrl)}
-            alt={event.title}
-            style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: '12px 12px 0 0' }}
-          />
-        )
-      }
-    >
-      <Typography.Title level={2}>{event.title}</Typography.Title>
+    <div style={{ maxWidth: 1000, margin: '32px auto', background: '#fff', borderRadius: 12, padding: 32 }}>
+      <Typography.Title level={1} style={{ marginBottom: 24 }}>{event.title}</Typography.Title>
+      {/* Gallery */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div style={{ flex: 2, minWidth: 0 }}>
+          {mainImg && (
+            <img src={mainImg} alt="main" style={{ width: '100%', height: 320, objectFit: 'cover', borderRadius: 12 }} />
+          )}
+        </div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {sideImg1 && (
+            <img src={sideImg1} alt="side1" style={{ width: '100%', height: 156, objectFit: 'cover', borderRadius: 12 }} />
+          )}
+          {sideImg2 && (
+            <img src={sideImg2} alt="side2" style={{ width: '100%', height: 156, objectFit: 'cover', borderRadius: 12 }} />
+          )}
+        </div>
+      </div>
+      {/* Price and Add to Cart - centered below gallery */}
+      <div style={{ width: 340, margin: '0 auto 32px auto', borderRadius: 12, textAlign: 'center', background: '#fafafa', boxShadow: '0 2px 8px #f0f1f2', padding: 24 }}>
+        <Typography.Title level={3} style={{ margin: 0 }}>
+          {event.price !== undefined ? `HK$ ${event.price}` : 'Free'}
+        </Typography.Title>
+        <Button type="primary" size="large" style={{ marginTop: 16, width: '100%' }}>
+          Add to cart
+        </Button>
+      </div>
+      {/* Event details */}
+      <div style={{ marginTop: 16 }}>
+        <Typography.Paragraph>
+          <strong>Organized by:</strong> {event.organizer.name}
+        </Typography.Paragraph>
+        <Typography.Paragraph>
+          <strong>Category:</strong> {event.category.name}
+        </Typography.Paragraph>
+        <Typography.Paragraph>
+          <strong>Date:</strong> {new Date(event.date).toLocaleString()}
+        </Typography.Paragraph>
+        <Typography.Paragraph>
+          <strong>Location:</strong> {event.location}
+        </Typography.Paragraph>
+        <Typography.Paragraph>{event.description}</Typography.Paragraph>
+      </div>
+      {/* Organizer controls at end of page */}
       {user && user.id === event.organizer.id && (
-        <Space style={{ marginBottom: 16 }}>
-          <Link to={`/events/${event.id}/edit`}>
-            <Button type="primary">Edit</Button>
-          </Link>
-          <Button type="primary" danger loading={loading} onClick={handleDelete}>
-            Delete
-          </Button>
-        </Space>
+        <div style={{ marginTop: 32, textAlign: 'center' }}>
+          <Space>
+            <Link to={`/events/${event.id}/edit`}>
+              <Button type="primary">Edit</Button>
+            </Link>
+            <Button type="primary" danger loading={loading} onClick={handleDelete}>
+              Delete
+            </Button>
+          </Space>
+        </div>
       )}
-      <Typography.Paragraph>
-        <strong>Organized by:</strong> {event.organizer.name}
-      </Typography.Paragraph>
-      <Typography.Paragraph>
-        <strong>Category:</strong> {event.category.name}
-      </Typography.Paragraph>
-      <Typography.Paragraph>
-        <strong>Date:</strong> {new Date(event.date).toLocaleString()}
-      </Typography.Paragraph>
-      <Typography.Paragraph>
-        <strong>Location:</strong> {event.location}
-      </Typography.Paragraph>
-      <Typography.Paragraph>{event.description}</Typography.Paragraph>
-    </Card>
+    </div>
   );
 };
 
