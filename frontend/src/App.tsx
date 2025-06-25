@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import EventPage from './components/events/EventPage';
 import EventForm from './components/events/EventForm';
 import ProtectedRoute from './components/routing/ProtectedRoute';
+import CategoryManager from './components/events/CategoryManager';
 import './App.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/events/:id" element={<EventPage />} />
+          <Route path="/categories" element={<CategoryManager />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/create-event" element={<EventForm />} />
             <Route path="/events/:id/edit" element={<EventForm />} />

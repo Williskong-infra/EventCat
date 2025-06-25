@@ -121,6 +121,9 @@ const EventForm = () => {
       <Form.Item label="Price (HK$)" name="price"> 
         <InputNumber min={0} style={{ width: '100%' }} placeholder="e.g. 150" />
       </Form.Item>
+      <Form.Item label="Max Attendees" name="maxAttendees"> 
+        <InputNumber min={1} style={{ width: '100%' }} placeholder="e.g. 100" />
+      </Form.Item>
       <Form.Item label="Category" name="categoryId" rules={[{ required: true, message: 'Please select a category' }]}>
         <select>
           {categories.map((category) => (
