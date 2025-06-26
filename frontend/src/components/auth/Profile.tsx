@@ -37,6 +37,14 @@ const timeZoneOptions = [
   { value: 'Other', label: 'Other' },
 ];
 
+// Helper to get full image URL
+const getProfilePicUrl = (pic?: string) => {
+  if (!pic) return undefined;
+  if (pic.startsWith('http://') || pic.startsWith('https://')) return pic;
+  // Assume relative path, serve from backend
+  return `http://localhost:3001${pic}`;
+};
+
 const Profile = () => {
   const [form] = Form.useForm();
   const [editing, setEditing] = useState(false);
@@ -120,10 +128,16 @@ const Profile = () => {
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 32, justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Avatar
-            size={72}
-            src={profilePic ? profilePic : undefined}
+            size={96}
+            src={getProfilePicUrl(profilePic)}
             icon={!profilePic ? <UserOutlined /> : undefined}
-            style={{ marginRight: 24, background: 'var(--color-primary)', color: 'var(--color-neutral-dark)' }}
+            style={{
+              marginRight: 32,
+              border: '3px solid var(--color-primary)',
+              background: 'var(--color-primary)',
+              color: 'var(--color-neutral-dark)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            }}
           />
           <div>
             <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--color-neutral-dark)' }}>{profile.fullName || 'Your Name'}</div>
