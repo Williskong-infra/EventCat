@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -23,7 +24,12 @@ const Login = () => {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.result));
       navigate('/');
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.response?.data?.message === 'Please verify your email before logging in.') {
+        message.error('Please verify your email before logging in.');
+      } else {
+        message.error('Login failed. Please check your credentials.');
+      }
       console.error(err);
     }
   };
