@@ -201,12 +201,11 @@ export const updateProfile = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
-    const { fullName, nickName, gender, country, language, timeZone, profilePic } = req.body;
+    const { name, gender, country, language, timeZone, profilePic } = req.body;
     const updated = await prisma.user.update({
       where: { id: userId },
       data: {
-        name: fullName,
-        nickName,
+        name,
         gender,
         country,
         language,
@@ -217,7 +216,6 @@ export const updateProfile = async (req: Request, res: Response) => {
         id: true,
         email: true,
         name: true,
-        nickName: true,
         gender: true,
         country: true,
         language: true,

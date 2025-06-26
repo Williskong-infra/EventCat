@@ -84,94 +84,133 @@ const Navbar = () => {
   const profilePic = userObj?.profilePic;
 
   return (
-    <Header style={{ width: '100%', padding: 0, background: '#fff', boxShadow: '0 2px 8px #f0f1f2', zIndex: 10, position: 'sticky', top: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: screens.md ? '0 32px' : '0 16px' }}>
-        <div style={{ fontWeight: 700, fontSize: 22, color: '#ff5b00', marginRight: 32, letterSpacing: 1, flexShrink: 0 }}>
+    <Header
+      style={{
+        width: '100%',
+        padding: 0,
+        background: '#fff',
+        boxShadow: '0 2px 8px #f0f1f2',
+        zIndex: 10,
+        position: 'sticky',
+        top: 0,
+        height: 60,
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          maxWidth: '1280px',
+          margin: '0 auto',
+          width: '100%',
+          padding: screens.md ? '0 40px' : '0 16px',
+          height: 60,
+          minHeight: 60,
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Logo left */}
+        <div style={{ display: 'flex', alignItems: 'center', height: 60 }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', color: '#ff5b00', textDecoration: 'none' }}>
-            <img src="/media/EventCat_logo.png" alt="EventCat Logo" style={{ height: 56, marginRight: 16 }} />
-            <span style={{ display: 'none' }}>EventCat</span>
+            <img src="/media/EventCat_logo.png" alt="EventCat Logo" style={{ height: 48, marginRight: 16 }} />
           </Link>
         </div>
+        {/* Desktop: nav links center, user actions right. Mobile: hamburger menu */}
         {screens.md ? (
           <>
-            {React.cloneElement(menu, {
-              style: { ...menu.props.style, color: 'var(--color-text)' },
-              items: menuItems.map(item => ({
-                ...item,
-                label: (
-                  <span style={{ color: location.pathname.startsWith(`/${item.key}`) || (item.key === 'home' && location.pathname === '/') ? 'var(--color-accent)' : 'var(--color-text)' }}>
-                    {item.label}
-                  </span>
-                )
-              }))
-            })}
-            {token ? (
-              <>
-                <Button
-                  style={{ marginLeft: 16, borderRadius: '50%', padding: 0, width: 40, height: 40, background: 'var(--color-neutral-light)', border: '1px solid var(--color-neutral-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  onClick={() => navigate('/profile')}
-                >
-                  <Avatar
-                    size={32}
-                    src={getProfilePicUrl(profilePic)}
-                    icon={!profilePic ? <UserOutlined /> : undefined}
-                    style={{ background: 'var(--color-primary)', color: 'var(--color-neutral-dark)' }}
-                  />
-                </Button>
-                <Button icon={<LogoutOutlined />} onClick={handleLogout} type="primary" danger style={{ marginLeft: 8 }}>
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button icon={<LoginOutlined />} type="primary" style={{ marginLeft: 16 }} onClick={() => navigate('/login')}>
-                  Login
-                </Button>
-                <Button icon={<UserAddOutlined />} style={{ marginLeft: 8 }} onClick={() => navigate('/register')}>
-                  Register
-                </Button>
-              </>
-            )}
+            {/* Nav links center (spaced out) */}
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', height: 60 }}>
+              {React.cloneElement(menu, {
+                style: { ...menu.props.style, color: 'var(--color-text)', background: 'transparent', fontSize: 18, fontWeight: 500 },
+                items: menuItems.map(item => ({
+                  ...item,
+                  label: (
+                    <span style={{ color: location.pathname.startsWith(`/${item.key}`) || (item.key === 'home' && location.pathname === '/') ? 'var(--color-accent)' : 'var(--color-text)' }}>
+                      {item.label}
+                    </span>
+                  )
+                }))
+              })}
+            </div>
+            {/* User actions right */}
+            <div style={{ display: 'flex', alignItems: 'center', height: 60 }}>
+              {token ? (
+                <>
+                  <Button
+                    style={{ marginLeft: 16, borderRadius: '50%', padding: 0, width: 40, height: 40, background: 'var(--color-neutral-light)', border: '1px solid var(--color-neutral-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    onClick={() => navigate('/profile')}
+                  >
+                    <Avatar
+                      size={32}
+                      src={getProfilePicUrl(profilePic)}
+                      icon={!profilePic ? <UserOutlined /> : undefined}
+                      style={{ background: 'var(--color-primary)', color: 'var(--color-neutral-dark)' }}
+                    />
+                  </Button>
+                  <Button icon={<LogoutOutlined />} onClick={handleLogout} type="primary" danger style={{ marginLeft: 8 }}>
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button icon={<LoginOutlined />} type="primary" style={{ marginLeft: 16 }} onClick={() => navigate('/login')}>
+                    Login
+                  </Button>
+                  <Button icon={<UserAddOutlined />} style={{ marginLeft: 8 }} onClick={() => navigate('/register')}>
+                    Register
+                  </Button>
+                </>
+              )}
+            </div>
           </>
         ) : (
           <>
             <Button icon={<MenuOutlined />} type="text" onClick={() => setDrawerOpen(true)} style={{ marginLeft: 'auto', fontSize: 22 }} />
             <Drawer
-              title={<span style={{ fontWeight: 700, fontSize: 22, color: '#ff5b00' }}>EventCat</span>}
+              title={
+                <span style={{ fontWeight: 700, fontSize: 22, color: '#ff5b00', display: 'flex', alignItems: 'center' }}>
+                  <img src="/media/EventCat_logo.png" alt="EventCat Logo" style={{ height: 36, marginRight: 10 }} /> EventCat
+                </span>
+              }
               placement="left"
               onClose={() => setDrawerOpen(false)}
               open={drawerOpen}
               bodyStyle={{ padding: 0 }}
             >
-              {menu}
+              {/* Nav links stacked */}
               <div style={{ padding: 16 }}>
-                {token ? (
-                  <>
-                    <Button
-                      style={{ marginBottom: 8, borderRadius: '50%', padding: 0, width: 40, height: 40, background: 'var(--color-neutral-light)', border: '1px solid var(--color-neutral-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      onClick={() => navigate('/profile')}
-                    >
-                      <Avatar
-                        size={32}
-                        src={getProfilePicUrl(profilePic)}
-                        icon={!profilePic ? <UserOutlined /> : undefined}
-                        style={{ background: 'var(--color-primary)', color: 'var(--color-neutral-dark)' }}
-                      />
-                    </Button>
-                    <Button icon={<LogoutOutlined />} onClick={handleLogout} type="primary" danger block>
-                      Logout
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button icon={<LoginOutlined />} type="primary" block style={{ marginBottom: 8 }} onClick={() => { setDrawerOpen(false); navigate('/login'); }}>
-                      Login
-                    </Button>
-                    <Button icon={<UserAddOutlined />} block onClick={() => { setDrawerOpen(false); navigate('/register'); }}>
-                      Register
-                    </Button>
-                  </>
-                )}
+                {menu}
+                <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {token ? (
+                    <>
+                      <Button
+                        style={{ borderRadius: '50%', padding: 0, width: 40, height: 40, background: 'var(--color-neutral-light)', border: '1px solid var(--color-neutral-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}
+                        onClick={() => { setDrawerOpen(false); navigate('/profile'); }}
+                      >
+                        <Avatar
+                          size={32}
+                          src={getProfilePicUrl(profilePic)}
+                          icon={!profilePic ? <UserOutlined /> : undefined}
+                          style={{ background: 'var(--color-primary)', color: 'var(--color-neutral-dark)' }}
+                        />
+                      </Button>
+                      <Button icon={<LogoutOutlined />} onClick={() => { setDrawerOpen(false); handleLogout(); }} type="primary" danger block>
+                        Logout
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button icon={<LoginOutlined />} type="primary" block style={{ marginBottom: 8 }} onClick={() => { setDrawerOpen(false); navigate('/login'); }}>
+                        Login
+                      </Button>
+                      <Button icon={<UserAddOutlined />} block onClick={() => { setDrawerOpen(false); navigate('/register'); }}>
+                        Register
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             </Drawer>
           </>

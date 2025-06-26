@@ -37,6 +37,9 @@ const EventPage = () => {
       try {
         const res = await axios.get(`/api/events/${id}`);
         setEvent(res.data);
+        // Debug: log user and organizer IDs
+        console.log('Current user.id:', user.id);
+        console.log('Event organizer.id:', res.data.organizer?.id);
       } catch (err) {
         message.error('Failed to fetch event');
       }

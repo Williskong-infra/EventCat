@@ -4,13 +4,11 @@ import { UserOutlined, EditOutlined, SaveOutlined, MailOutlined, UploadOutlined 
 import axios from 'axios';
 
 const initialProfile = {
-  fullName: '',
-  nickName: '',
+  name: '',
   gender: '',
   country: '',
   language: '',
   timeZone: '',
-  email: '',
 };
 
 const genderOptions = [
@@ -60,23 +58,19 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProfile({
-          fullName: res.data.name || '',
-          nickName: res.data.nickName || '',
+          name: res.data.name || '',
           gender: res.data.gender || '',
           country: res.data.country || '',
           language: res.data.language || '',
           timeZone: res.data.timeZone || '',
-          email: res.data.email || '',
         });
         setProfilePic(res.data.profilePic);
         form.setFieldsValue({
-          fullName: res.data.name || '',
-          nickName: res.data.nickName || '',
+          name: res.data.name || '',
           gender: res.data.gender || '',
           country: res.data.country || '',
           language: res.data.language || '',
           timeZone: res.data.timeZone || '',
-          email: res.data.email || '',
           profilePic: res.data.profilePic || '',
         });
       } catch (err) {
@@ -140,8 +134,7 @@ const Profile = () => {
             }}
           />
           <div>
-            <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--color-neutral-dark)' }}>{profile.fullName || 'Your Name'}</div>
-            <div style={{ color: 'var(--color-text)', fontSize: 16 }}>{profile.email}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--color-neutral-dark)' }}>{profile.name || 'Your Name'}</div>
           </div>
         </div>
         {editing ? (
@@ -176,10 +169,7 @@ const Profile = () => {
         <Form.Item name="profilePic" style={{ display: 'none' }}><Input /></Form.Item>
         <Row gutter={24}>
           <Col xs={24} md={12}>
-            <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: 'Please enter your full name' }]}> <Input placeholder="Your First Name" /> </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item label="Nick Name" name="nickName"> <Input placeholder="Your Nick Name" /> </Form.Item>
+            <Form.Item label="Name" name="name" rules={[{ required: true, message: 'Please enter your name' }]}> <Input placeholder="Your Name" /> </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item label="Gender" name="gender"> <Select options={genderOptions} placeholder="Select Gender" /> </Form.Item>
@@ -195,15 +185,6 @@ const Profile = () => {
           </Col>
         </Row>
       </Form>
-      <div style={{ background: 'var(--color-neutral-light)', borderRadius: 8, padding: 24 }}>
-        <div style={{ fontWeight: 600, marginBottom: 12 }}>My email Address</div>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-          <MailOutlined style={{ color: 'var(--color-accent)', fontSize: 20, marginRight: 12 }} />
-          <span style={{ fontSize: 16 }}>{profile.email}</span>
-          <span style={{ color: '#888', fontSize: 13, marginLeft: 12 }}>1 month ago</span>
-        </div>
-        <Button type="dashed" style={{ color: 'var(--color-accent)', borderColor: 'var(--color-accent)' }}>+ Add Email Address</Button>
-      </div>
     </div>
   );
 };
