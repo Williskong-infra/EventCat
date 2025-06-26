@@ -5,6 +5,8 @@ import eventRoutes from './routes/event';
 import categoryRoutes from './routes/category';
 import uploadRoutes from './routes/upload';
 import path from 'path';
+import cartRoutes from './routes/cart';
+import orderRoutes from './routes/order';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -24,6 +26,8 @@ app.use('/media', (req, res, next) => {
   next();
 }, express.static(mediaPath));
 app.use('/api/upload', uploadRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.send('Server is running');

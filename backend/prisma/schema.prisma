@@ -32,6 +32,8 @@ model User {
   country       String?
   language      String?
   timeZone      String?
+  cart          Cart?
+  orders        Order[]
 }
 
 model Event {
@@ -51,6 +53,8 @@ model Event {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   images        Image[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
 }
 
 model Category {
@@ -90,4 +94,41 @@ model Image {
   url     String
   event   Event   @relation(fields: [eventId], references: [id])
   eventId String
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String     @unique
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  cartId    String
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   String
+  quantity  Int      @default(1)
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    String
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+  total     Float
+  status    String      // e.g. "pending", "paid"
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   String
+  quantity  Int      @default(1)
+  price     Float
 }
