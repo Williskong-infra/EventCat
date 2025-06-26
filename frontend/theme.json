@@ -1,0 +1,53 @@
+{
+    "colorPalette": {
+      "primary": "#E3EFCB",
+      "accent": "#D4E157",
+      "neutrals": {
+        "dark": "#2E2E2E",
+        "light": "#F5F5F5"
+      },
+      "text": "#3A4D39"
+    },
+    "typography": {
+      "headings": {
+        "font": "Poppins",
+        "sizes": {
+          "h1": "36px",
+          "h2": "28px"
+        }
+      },
+      "body": {
+        "font": "Open Sans",
+        "sizes": {
+          "default": "16px",
+          "small": "14px"
+        }
+      }
+    },
+    "uiElements": {
+      "buttons": {
+        "primary": {
+          "background": "#E3EFCB",
+          "text": "#3A4D39",
+          "hover": {
+            "background": "#D4E157"
+          }
+        }
+      },
+      "cards": {
+        "background": "#F5F5F5",
+        "headerColor": "#E3EFCB",
+        "borderRadius": "8px",
+        "shadow": "light"
+      }
+    },
+    "layout": {
+      "grid": "12-column",
+      "spacingScale": [4, 8, 16, 24, 32]
+    },
+    "imageryMood": {
+      "light": "bright natural light",
+      "texture": "paper, linen",
+      "themes": ["organic", "calm", "creative"]
+    }
+  }

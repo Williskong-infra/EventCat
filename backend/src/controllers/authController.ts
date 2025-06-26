@@ -2,33 +2,31 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '../../generated/prisma';
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
-const ses = new SESClient({
-  region: process.env.AWS_SES_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_SES_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY!,
+// Nodemailer transporter setup
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
-const SENDER_EMAIL = process.env.AWS_SES_SENDER_EMAIL!;
+const SENDER_EMAIL = process.env.SMTP_SENDER_EMAIL!;
 
 async function sendVerificationEmail(email: string, code: string) {
-  const params = {
-    Destination: { ToAddresses: [email] },
-    Message: {
-      Body: {
-        Text: { Data: `Your EventCat verification code is: ${code}` },
-      },
-      Subject: { Data: 'EventCat Email Verification' },
-    },
-    Source: SENDER_EMAIL,
-  };
-  await ses.send(new SendEmailCommand(params));
+  await transporter.sendMail({
+    from: SENDER_EMAIL,
+    to: email,
+    subject: 'EventCat Email Verification',
+    text: `Your EventCat verification code is: ${code}`,
+  });
 }
 
 export const register = async (req: Request, res: Response) => {
@@ -92,6 +90,10 @@ export const login = async (req: Request, res: Response) => {
     if (!user) {
       res.status(400).json({ message: 'Invalid credentials' });
       return;
+    }
+
+    if (!user.emailVerified) {
+      return res.status(400).json({ message: 'Please verify your email before logging in.' });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);

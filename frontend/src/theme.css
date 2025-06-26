@@ -1,0 +1,39 @@
+:root {
+  --color-primary: #E3EFCB;
+  --color-secondary: #1A1A1A;
+  --color-bg: #F9F9F9;
+  --color-accent: #D4E157;
+  --color-text-main: #222222;
+  --color-text-secondary: #666666;
+  --color-neutral-dark: #2E2E2E;
+  --color-neutral-light: #F5F5F5;
+  --color-text: #3A4D39;
+  --font-main: 'Inter', 'Segoe UI', Arial, sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Open Sans', Arial, sans-serif;
+  --border-radius: 8px;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --button-bg: #E3EFCB;
+  --button-text: #3A4D39;
+  --button-hover-bg: #D4E157;
+  --card-bg: #F5F5F5;
+  --card-header: #E3EFCB;
+  --card-radius: 8px;
+  --card-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-main);
+  font-family: var(--font-main);
+}
+
+button, .ant-btn {
+  border-radius: var(--border-radius);
+  transition: background var(--transition), color var(--transition);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-secondary);
+  font-family: var(--font-main);
+} 
