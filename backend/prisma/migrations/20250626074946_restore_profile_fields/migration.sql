@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `country` VARCHAR(191) NULL,
+    ADD COLUMN `gender` VARCHAR(191) NULL,
+    ADD COLUMN `language` VARCHAR(191) NULL,
+    ADD COLUMN `nickName` VARCHAR(191) NULL,
+    ADD COLUMN `timeZone` VARCHAR(191) NULL;

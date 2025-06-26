@@ -26,6 +26,12 @@ model User {
   registrations Registration[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  profilePic    String?   // URL to profile picture
+  nickName      String?
+  gender        String?
+  country       String?
+  language      String?
+  timeZone      String?
 }
 
 model Event {

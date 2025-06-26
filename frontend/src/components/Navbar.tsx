@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Menu, Button, Drawer, Grid } from 'antd';
-import { HomeOutlined, AppstoreOutlined, PlusOutlined, LoginOutlined, UserAddOutlined, LogoutOutlined, InfoCircleOutlined, QuestionCircleOutlined, MenuOutlined } from '@ant-design/icons';
+import { HomeOutlined, AppstoreOutlined, PlusOutlined, LoginOutlined, UserAddOutlined, LogoutOutlined, InfoCircleOutlined, QuestionCircleOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;
 const { useBreakpoint } = Grid;
@@ -79,11 +79,28 @@ const Navbar = () => {
         </div>
         {screens.md ? (
           <>
-            {menu}
+            {React.cloneElement(menu, {
+              style: { ...menu.props.style, color: 'var(--color-text)' },
+              items: menuItems.map(item => ({
+                ...item,
+                label: (
+                  <span style={{ color: location.pathname.startsWith(`/${item.key}`) || (item.key === 'home' && location.pathname === '/') ? 'var(--color-accent)' : 'var(--color-text)' }}>
+                    {item.label}
+                  </span>
+                )
+              }))
+            })}
             {token ? (
-              <Button icon={<LogoutOutlined />} onClick={handleLogout} type="primary" danger style={{ marginLeft: 16 }}>
-                Logout
-              </Button>
+              <>
+                <Button
+                  icon={<UserOutlined />}
+                  style={{ marginLeft: 16, borderRadius: '50%', background: 'var(--color-neutral-light)', color: 'var(--color-neutral-dark)', border: '1px solid var(--color-neutral-dark)' }}
+                  onClick={() => navigate('/profile')}
+                />
+                <Button icon={<LogoutOutlined />} onClick={handleLogout} type="primary" danger style={{ marginLeft: 8 }}>
+                  Logout
+                </Button>
+              </>
             ) : (
               <>
                 <Button icon={<LoginOutlined />} type="primary" style={{ marginLeft: 16 }} onClick={() => navigate('/login')}>
@@ -108,9 +125,16 @@ const Navbar = () => {
               {menu}
               <div style={{ padding: 16 }}>
                 {token ? (
-                  <Button icon={<LogoutOutlined />} onClick={handleLogout} type="primary" danger block>
-                    Logout
-                  </Button>
+                  <>
+                    <Button
+                      icon={<UserOutlined />}
+                      style={{ marginBottom: 8, borderRadius: '50%', background: 'var(--color-neutral-light)', color: 'var(--color-neutral-dark)', border: '1px solid var(--color-neutral-dark)' }}
+                      onClick={() => navigate('/profile')}
+                    />
+                    <Button icon={<LogoutOutlined />} onClick={handleLogout} type="primary" danger block>
+                      Logout
+                    </Button>
+                  </>
                 ) : (
                   <>
                     <Button icon={<LoginOutlined />} type="primary" block style={{ marginBottom: 8 }} onClick={() => { setDrawerOpen(false); navigate('/login'); }}>

@@ -9,6 +9,7 @@ import ProtectedRoute from './components/routing/ProtectedRoute';
 import CategoryManager from './components/events/CategoryManager';
 import Footer from './components/Footer';
 import VerifyEmail from './components/auth/VerifyEmail';
+import Profile from './components/auth/Profile';
 import './App.css';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
               <Route path="/events/:id/edit" element={<EventForm />} />
             </Route>
             <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </div>
         <Footer />

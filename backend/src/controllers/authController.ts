@@ -164,4 +164,69 @@ export const deleteCategory = async (req: Request, res: Response) => {
   }
   await prisma.category.delete({ where: { id } });
   res.json({ message: 'Category deleted' });
+};
+
+export const getProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        nickName: true,
+        gender: true,
+        country: true,
+        language: true,
+        timeZone: true,
+        profilePic: true,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load profile', error: err });
+  }
+};
+
+export const updateProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const { fullName, nickName, gender, country, language, timeZone, profilePic } = req.body;
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: fullName,
+        nickName,
+        gender,
+        country,
+        language,
+        timeZone,
+        profilePic,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        nickName: true,
+        gender: true,
+        country: true,
+        language: true,
+        timeZone: true,
+        profilePic: true,
+      },
+    });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update profile', error: err });
+  }
 }; 
