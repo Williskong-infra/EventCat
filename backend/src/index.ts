@@ -7,6 +7,7 @@ import uploadRoutes from './routes/upload';
 import path from 'path';
 import cartRoutes from './routes/cart';
 import orderRoutes from './routes/order';
+import paymentRoutes from './routes/payment';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -28,6 +29,7 @@ app.use('/media', (req, res, next) => {
 app.use('/api/upload', uploadRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.send('Server is running');

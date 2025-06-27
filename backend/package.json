@@ -26,6 +26,7 @@
     "@prisma/client": "^6.10.1",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^2.0.1"
+    "multer": "^2.0.1",
+    "stripe": "^18.2.1"
   }
 }

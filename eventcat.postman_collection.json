@@ -379,6 +379,32 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment Intent",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000,\n  \"currency\": \"hkd\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/create-intent",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "create-intent"]
+            },
+            "description": "Create a Stripe payment intent. Requires authentication.\n\nBody parameters:\n- amount: integer (required, in cents)\n- currency: string (optional, default 'hkd')\n\nReturns: { clientSecret } for Stripe payment processing."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
