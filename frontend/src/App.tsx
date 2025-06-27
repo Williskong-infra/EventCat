@@ -10,6 +10,7 @@ import CategoryManager from './components/events/CategoryManager';
 import Footer from './components/Footer';
 import VerifyEmail from './components/auth/VerifyEmail';
 import Profile from './components/auth/Profile';
+import Payment from './components/Payment';
 import './App.css';
 import { CartProvider } from './context/CartContext';
 
@@ -33,6 +34,7 @@ function App() {
               </Route>
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/checkout" element={<Payment />} />
             </Routes>
           </div>
           <Footer />

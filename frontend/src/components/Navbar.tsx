@@ -97,7 +97,7 @@ const Navbar = () => {
       footer={cart && cart.items.length > 0 ? (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button onClick={async () => { await clearCart(); message.success('Cart cleared!'); }}>Clear Cart</Button>
-          <Button type="primary" onClick={() => { message.success('Checkout coming soon!'); }}>Checkout</Button>
+          <Button type="primary" onClick={() => { setCartOpen(false); navigate('/checkout'); }}>Checkout</Button>
         </div>
       ) : null}
     >
