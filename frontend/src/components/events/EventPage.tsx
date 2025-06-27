@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Card from 'antd/es/card';
 import { Typography, Button, Space, Modal, message } from 'antd';
+import { useCart } from '../../context/CartContext';
 
 interface Event {
   id: string;
@@ -31,6 +32,7 @@ const EventPage = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [loading, setLoading] = useState(false);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -126,7 +128,17 @@ const EventPage = () => {
             <Typography.Title level={3} style={{ margin: 0 }}>
               {event.price !== undefined ? `HK$ ${event.price}` : 'Free'}
             </Typography.Title>
-            <Button type="primary" size="large" style={{ marginTop: 16, width: '100%' }}>
+            <Button
+              type="primary"
+              size="large"
+              style={{ marginTop: 16, width: '100%' }}
+              onClick={async () => {
+                if (event) {
+                  await addToCart(event.id, 1);
+                  message.success('Added to cart!');
+                }
+              }}
+            >
               Add to cart
             </Button>
           </div>

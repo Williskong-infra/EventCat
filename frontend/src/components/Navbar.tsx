@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Layout, Menu, Button, Drawer, Grid, Avatar } from 'antd';
-import { HomeOutlined, AppstoreOutlined, PlusOutlined, LoginOutlined, UserAddOutlined, LogoutOutlined, InfoCircleOutlined, QuestionCircleOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons';
+import { Layout, Menu, Button, Drawer, Grid, Avatar, InputNumber, Popconfirm, message } from 'antd';
+import { HomeOutlined, AppstoreOutlined, PlusOutlined, LoginOutlined, UserAddOutlined, LogoutOutlined, InfoCircleOutlined, QuestionCircleOutlined, MenuOutlined, UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { useCart } from '../context/CartContext';
 
 const { Header } = Layout;
 const { useBreakpoint } = Grid;
@@ -12,6 +13,8 @@ const Navbar = () => {
   const token = localStorage.getItem('token');
   const screens = useBreakpoint();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { cart, updateCartItem, removeCartItem, clearCart } = useCart();
+  const [cartOpen, setCartOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -83,6 +86,58 @@ const Navbar = () => {
   const userObj = user ? JSON.parse(user) : null;
   const profilePic = userObj?.profilePic;
 
+  // CartDrawer component
+  const CartDrawer = () => (
+    <Drawer
+      title="Shopping Cart"
+      placement="right"
+      onClose={() => setCartOpen(false)}
+      open={cartOpen}
+      width={400}
+      footer={cart && cart.items.length > 0 ? (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Button onClick={async () => { await clearCart(); message.success('Cart cleared!'); }}>Clear Cart</Button>
+          <Button type="primary" onClick={() => { message.success('Checkout coming soon!'); }}>Checkout</Button>
+        </div>
+      ) : null}
+    >
+      {cart && cart.items.length > 0 ? (
+        <div>
+          {cart.items.map(item => (
+            <div key={item.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600 }}>{item.event.title}</div>
+                <div>Price: HK$ {item.event.price ?? 0}</div>
+                <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
+                  <span>Qty:</span>
+                  <InputNumber
+                    min={1}
+                    value={item.quantity}
+                    onChange={async (val: number | null) => {
+                      if (typeof val === 'number') {
+                        await updateCartItem(item.id, val);
+                        message.success('Quantity updated!');
+                      }
+                    }}
+                    style={{ marginLeft: 8, width: 60 }}
+                  />
+                  <Popconfirm title="Remove item?" onConfirm={async () => { await removeCartItem(item.id); message.success('Item removed!'); }}>
+                    <Button size="small" danger style={{ marginLeft: 12 }}>Remove</Button>
+                  </Popconfirm>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div style={{ fontWeight: 700, fontSize: 18, marginTop: 24 }}>
+            Total: HK$ {cart.items.reduce((sum, item) => sum + (item.event.price ?? 0) * item.quantity, 0)}
+          </div>
+        </div>
+      ) : (
+        <div>Your cart is empty.</div>
+      )}
+    </Drawer>
+  );
+
   return (
     <Header
       style={{
@@ -149,6 +204,15 @@ const Navbar = () => {
                       style={{ background: 'var(--color-primary)', color: 'var(--color-neutral-dark)' }}
                     />
                   </Button>
+                  <Button
+                    icon={<ShoppingCartOutlined />}
+                    style={{ marginLeft: 16, borderRadius: '50%', background: 'var(--color-neutral-light)', color: 'var(--color-neutral-dark)', border: '1px solid var(--color-neutral-dark)', position: 'relative' }}
+                    onClick={() => setCartOpen(true)}
+                  >
+                    {cart && cart.items.length > 0 && (
+                      <span style={{ position: 'absolute', top: 2, right: 2, background: '#ff5b00', color: '#fff', borderRadius: '50%', fontSize: 12, width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cart.items.length}</span>
+                    )}
+                  </Button>
                   <Button icon={<LogoutOutlined />} onClick={handleLogout} type="primary" danger style={{ marginLeft: 8 }}>
                     Logout
                   </Button>
@@ -196,6 +260,15 @@ const Navbar = () => {
                           style={{ background: 'var(--color-primary)', color: 'var(--color-neutral-dark)' }}
                         />
                       </Button>
+                      <Button
+                        icon={<ShoppingCartOutlined />}
+                        style={{ marginLeft: 16, borderRadius: '50%', background: 'var(--color-neutral-light)', color: 'var(--color-neutral-dark)', border: '1px solid var(--color-neutral-dark)', position: 'relative' }}
+                        onClick={() => setCartOpen(true)}
+                      >
+                        {cart && cart.items.length > 0 && (
+                          <span style={{ position: 'absolute', top: 2, right: 2, background: '#ff5b00', color: '#fff', borderRadius: '50%', fontSize: 12, width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cart.items.length}</span>
+                        )}
+                      </Button>
                       <Button icon={<LogoutOutlined />} onClick={() => { setDrawerOpen(false); handleLogout(); }} type="primary" danger block>
                         Logout
                       </Button>
@@ -216,6 +289,7 @@ const Navbar = () => {
           </>
         )}
       </div>
+      <CartDrawer />
     </Header>
   );
 };
