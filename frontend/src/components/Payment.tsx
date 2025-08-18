@@ -56,12 +56,20 @@ const RealPaymentForm: React.FC<{ total: number }> = ({ total }) => {
 const Payment: React.FC = () => {
   const { cart } = useCart();
   const [clientSecret, setClientSecret] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const total = cart
     ? cart.items.reduce((sum, item) => sum + (item.event.price ?? 0) * item.quantity, 0)
     : 0;
 
   useEffect(() => {
     if (!total) return;
+    
+    setLoading(true);
+    setError('');
+    
+    console.log('Creating payment intent for amount:', total * 100);
+    
     fetch('/api/payments/create-intent', {
       method: 'POST',
       headers: {
@@ -70,12 +78,32 @@ const Payment: React.FC = () => {
       },
       body: JSON.stringify({ amount: total * 100, currency: 'hkd' })
     })
-      .then(res => res.json())
-      .then(data => setClientSecret(data.clientSecret));
+      .then(res => {
+        console.log('Payment intent response status:', res.status);
+        if (!res.ok) {
+          return res.json().then(err => {
+            throw new Error(err.error || `HTTP ${res.status}`);
+          });
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Payment intent created:', data);
+        setClientSecret(data.clientSecret);
+      })
+      .catch(err => {
+        console.error('Payment intent error:', err);
+        setError(err.message || 'Failed to create payment intent');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [total]);
 
   if (!cart || cart.items.length === 0) return <div>Your cart is empty.</div>;
-  if (!clientSecret) return <div>Loading payment form...</div>;
+  if (loading) return <div>Loading payment form...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!clientSecret) return <div>Failed to load payment form. Please try again.</div>;
 
   return (
     <Elements stripe={stripePromise} options={{ clientSecret }}>

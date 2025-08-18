@@ -18,7 +18,10 @@ services:
     build: ./backend
     environment:
       DATABASE_URL: mysql://eventcat:eventcatpassword@db:3306/eventcat
-      STRIPE_SECRET_KEY: sk_test_xxx # <-- Replace with your real key or use .env
+      STRIPE_SECRET_KEY: sk_test_your_secret_key_here # <-- Replace with your real Stripe secret key
+      JWT_SECRET: your_jwt_secret_here
+      EMAIL_USER: your_email@gmail.com
+      EMAIL_PASS: your_email_password
     depends_on:
       - db
     ports:
